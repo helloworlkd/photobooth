@@ -197,6 +197,7 @@ def start_photobooth():
 			camera.stop_preview()
 			show_image(real_path + "/img/pose" + str(i) + ".png")
 			time.sleep(capture_delay)
+			#--- Si besoin d'ajouter un "Watermark" comme par exemple un logo
 			# Overlay #img = Image.open(real_path + "/overlay.png")
 			# Overlay #pad = Image.new('RGBA', (
 			# Overlay #	((img.size[0] + 31) // 32) * 32,
@@ -246,52 +247,11 @@ def start_photobooth():
 	display_pics(now)
 	show_image(real_path + "/img/finished.png")
 	subprocess.Popen("convert -treedepth 4 -colors 256 -loop 0 -delay " + str(gif_delay) + " " + file_path + now + "*-xs.jpg " + file_path + now + ".gif", shell=True)
-	#subprocess.Popen("montage " + file_path + now + "*xs.jpg -tile 2x2 -geometry 512x288 -border 10 -bordercolor '#f7f7f7' " + file_path + now + "-montage.jpg", shell=True)
+	subprocess.Popen("montage " + file_path + now + "*xs.jpg -tile 2x2 -geometry 512x288 -border 10 -bordercolor '#f7f7f7' " + file_path + now + "-montage.jpg", shell=True)
 	success_sound()
 	time.sleep(restart_delay)
 	show_image(real_path + "/img/intro.png")
 	
-# BOOMERANG
-
-def start_boomerang():
-
-	# STEP 1 - INIT
-
-	colorWipe(strip, Color(0, 0, 0, 0))
-	show_image(real_path + "/img/instructions2.png")
-	time.sleep(prep_delay)
-	camera = picamera.PiCamera(resolution=(high_res_w, high_res_h), framerate=30, sensor_mode=2)
-	camera.vflip = True
-	camera.hflip = True
-	camera.color_effects = (128,128)
-	camera.iso = 800
-	camera.exposure_mode = 'night'
-	camera.image_effect = 'film'
-	
-	# STEP 2 - CAPTURE (EN COURS DE DEV)
-
-	now = time.strftime("%Y-%m-%d-%H-%M-%S")
-
-	try:
-
-		for i in range(1,total_pics+1):
-
-			camera.start_preview()
-			colorWipe(strip, Color(255, 255, 255, 255))
-			time.sleep(2)
-			snap_sound()
-
-			colorWipe(strip, Color(0, 0, 0, 0))
-			clear_screen()
-
-	finally:
-		camera.close()
-	
-	show_image(real_path + "/img/finished.png")
-	success_sound()
-	time.sleep(restart_delay)
-	show_image(real_path + "/img/intro.png")
-
 #--- PROGRAMME
 
 # INTRODUCTION
@@ -299,17 +259,12 @@ def start_boomerang():
 strip = Adafruit_NeoPixel(NEOB_COUNT, NEOB_PIN, NEOB_FREQ_HZ, NEOB_DMA, NEOB_INVERT, NEOB_BRIGHTNESS, NEOB_CHANNEL, NEOB_STRIP)
 strip.begin()
 show_image(real_path + "/img/intro.png")
-#os.system("rm " + file_path + "*-xs.jpg")
+os.system("rm " + file_path + "*-xs.jpg")
 
 while True:
 
 	colorWipe(strip, Color(255, 255, 255, 255))
-	#GPIO.wait_for_edge(btn_pinA, GPIO.FALLING)
-	#GPIO.wait_for_edge(btn_pinB, GPIO.FALLING)
 
 	if (GPIO.input(btn_pinA) == True):
 		bip_sound()
 		start_photobooth()
-	if (GPIO.input(btn_pinB) == True):
-		bip_sound()
-		start_boomerang()
